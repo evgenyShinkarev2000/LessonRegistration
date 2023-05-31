@@ -1,0 +1,13 @@
+﻿{
+  "ConnectionStrings": {
+    "postgre": "User ID=postgres;Password=admin;Host=localhost;Port=8060;Database=lesson-registration;Connection Lifetime=0;"
+  },
+  "BaseUri": {
+    "KeyCloakRealm": "http://localhost:8070/realms/lesson-registration-realm",
+    "WebClient": "http://localhost:5050"
+  },
+  "KeyCloak": {
+    "client_secret": "luDZdmhNMHP6wbyXAFIStTOVx41nBYvq",
+    "client_id": "lesson-registration-client"
+  }
+}
