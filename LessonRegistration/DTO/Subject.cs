@@ -1,5 +1,4 @@
-﻿using LessonRegistration.Data;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace LessonRegistration.DTO
@@ -9,7 +8,7 @@ namespace LessonRegistration.DTO
         public IEnumerable<DTO.StudentShort>? RegisteredStudents { get; set; }
         public IEnumerable<DTO.SemesterShort>? UsedInSemesters { get; set; }
         public Subject() { }
-        public Subject(Data.Subject subject) : base(subject)
+        public Subject(Data.Models.Subject subject) : base(subject)
         {
             this.RegisteredStudents = subject.RegisteredStudents.Select(r => new DTO.StudentShort(r));
             this.UsedInSemesters = subject.UsedInSemesters.Select(u => new SemesterShort(u));

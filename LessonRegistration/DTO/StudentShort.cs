@@ -1,8 +1,8 @@
-﻿using LessonRegistration.Data;
+﻿using LessonRegistration.Data.Models;
 
 namespace LessonRegistration.DTO
 {
-    public class StudentShort : PostgreEntity, IDto<Data.Student>
+    public class StudentShort : PostgreEntity, IDto<Data.Models.Student>
     {
         public string? FirstName { get; set; }
         public string? SecondName { get; set; }
@@ -13,7 +13,7 @@ namespace LessonRegistration.DTO
         public DTO.InstituteShort? Institute { get; set; }
 
         public StudentShort() { }
-        public StudentShort(Data.Student student)
+        public StudentShort(Data.Models.Student student)
         {
             FirstName = student.FirstName;
             SecondName = student.SecondName;
@@ -22,9 +22,9 @@ namespace LessonRegistration.DTO
             AverageGrade = student.AverageGrade;
         }
 
-        public virtual Data.Student ToModel()
+        public virtual Data.Models.Student ToModel()
         {
-            return new Data.Student()
+            return new Data.Models.Student()
             {
                 FirstName = FirstName!,
                 SecondName = SecondName!,

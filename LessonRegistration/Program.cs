@@ -1,5 +1,5 @@
-
-using LessonRegistration.Data;
+using LessonRegistration.Data.Models;
+using LessonRegistration.Data.Services;
 using LessonRegistration.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -31,6 +31,8 @@ namespace LessonRegistration
                 var t = builder.Configuration.GetConnectionString("postgre");
                 optionsAction.UseNpgsql(t);
             });
+            builder.Services.AddTransient<Institutes>();
+            builder.Services.AddTransient<Departments>();
 
 
             builder.Services.AddAuthentication(configureOptions =>

@@ -1,4 +1,4 @@
-﻿using LessonRegistration.Data;
+﻿using LessonRegistration.Data.Models;
 using LessonRegistration.DTO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -145,7 +145,7 @@ namespace LessonRegistration.Controllers
             return null;
         }
 
-        private IQueryable<Data.Semester> IncludeAll(IQueryable<Data.Semester> semesters)
+        private IQueryable<Data.Models.Semester> IncludeAll(IQueryable<Data.Models.Semester> semesters)
              => semesters
                 .Include(s => s.Department)
                 .Include(s => s.Students)

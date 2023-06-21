@@ -1,5 +1,5 @@
-﻿using LessonRegistration.Data;
-using LessonRegistration.DTO;
+﻿using LessonRegistration.Data.Models;
+using LessonRegistration.Data.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -11,17 +11,19 @@ namespace LessonRegistration.Controllers
     [Route("api/Department")]
     public class DepartmentController : Controller
     {
-        private readonly AppDBContext appDBContext;
+        private readonly Departments departments;
+        private readonly Institutes institutes;
 
-        public DepartmentController(AppDBContext appDBContext)
+        public DepartmentController(Departments departments, Institutes institutes)
         {
-            this.appDBContext = appDBContext;
+            this.departments = departments;
+            this.institutes = institutes;
         }
 
         [HttpGet]
         public IEnumerable<DTO.Department> GetAll()
         {
-            return IncludeAll(appDBContext.Departments)
+            return departments.GetAll()
                     .Select(d => new DTO.Department(d));
         }
 
@@ -41,27 +43,21 @@ namespace LessonRegistration.Controllers
             {
                 return BadRequest($"property institute required");
             }
-            var institute = appDBContext.Institutes.Find(department.Institute.Id);
+            var institute = institutes.GetById(department.Institute.Id);
             if (institute == null)
             {
                 return BadRequest($"cant find institute with id {department.Institute.Id}. Create it first");
             }
 
-            var departmentDb = department.ToModel();
-            departmentDb.Institute = institute;
-            appDBContext.Add(departmentDb);
+            var newDepartment = departments.Add(department.ToModel());
 
-            appDBContext.SaveChanges();
-
-            return Ok(new DTO.Department(departmentDb));
+            return Ok(new DTO.Department(newDepartment));
         }
 
         [HttpDelete("{id}")]
         public IActionResult Remove([FromRoute] int id)
         {
-            var department = appDBContext.Departments
-                .Include(d => d.Semesters)
-                .FirstOrDefault(d => d.Id == id);
+            var department = departments.GetById(id);
             if (department == null)
             {
                 return NotFound($"department with id {id} not found");
@@ -71,8 +67,7 @@ namespace LessonRegistration.Controllers
                 return BadRequest($"cascade delete prohibited. Remove all semesters first");
             }
 
-            appDBContext.Departments.Remove(department);
-            appDBContext.SaveChanges();
+            departments.Remove(department);
 
             return Ok(new DTO.Department(department));
         }
@@ -80,7 +75,7 @@ namespace LessonRegistration.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById([FromRoute] int id)
         {
-            var department = appDBContext.Departments.Include(d => d.Institute).FirstOrDefault(d => d.Id == id);
+            var department = departments.GetById(id);
             if (department == null)
             {
                 return NotFound($"department with id {id} not found");
@@ -91,9 +86,7 @@ namespace LessonRegistration.Controllers
         [HttpGet("search")]
         public IActionResult GetByName([FromQuery] string name)
         {
-            var departments = appDBContext.Departments
-                .Include(d => d.Institute)
-                .Where(d => d.Name == name);
+            var departments = this.departments.FindByName(name);
 
             return Ok(departments.Select(d => new DTO.Department(d)));
         }
@@ -110,9 +103,7 @@ namespace LessonRegistration.Controllers
             {
                 return BadRequest($"property {nameof(department.Name)} required");
             }
-            var oldDepartment = appDBContext.Departments
-                .Include(d => d.Institute)
-                .FirstOrDefault(d => d.Id == department.Id);
+            var oldDepartment = departments.GetById(department.Id);
             if (oldDepartment == null)
             {
                 return NotFound($"department with id {department.Id} not found");
@@ -121,17 +112,13 @@ namespace LessonRegistration.Controllers
             {
                 return BadRequest($"property institute required");
             }
-            var newInstitute = appDBContext.Institutes.Find(department.Institute.Id);
-            if (newInstitute == null)
+            var institute = institutes.GetById(department.Institute.Id);
+            if (institute == null)
             {
                 return BadRequest($"cant find institute with id {department.Institute.Id}. Create it first");
             }
 
-            var newDepartment = department.ToModel();
-            newDepartment.Institute = newInstitute;
-            appDBContext.Entry(oldDepartment).State = EntityState.Detached;
-            appDBContext.Departments.Update(newDepartment);
-            appDBContext.SaveChanges();
+            var newDepartment = departments.Update(department.ToModel());
 
             return Ok(new DTO.Department(newDepartment));
         }
@@ -145,10 +132,5 @@ namespace LessonRegistration.Controllers
 
             return null;
         }
-
-        private IQueryable<Data.Department> IncludeAll(IQueryable<Data.Department> departments)
-            => departments
-                .Include(d => d.Institute)
-                .Include(d => d.Semesters);
     }
 }

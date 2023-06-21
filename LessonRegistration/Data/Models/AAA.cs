@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace LessonRegistration.Data
+namespace LessonRegistration.Data.Models
 {
     public class AAA : PostgreEntity
     {

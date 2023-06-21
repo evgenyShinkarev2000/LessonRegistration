@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
-namespace LessonRegistration.Data
+namespace LessonRegistration.Data.Models
 {
     public class AppDBContext : DbContext
     {

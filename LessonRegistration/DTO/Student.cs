@@ -7,7 +7,7 @@ namespace LessonRegistration.DTO
     {
         public IEnumerable<DTO.SubjectShort>? SelectedSubject { get; set; }
         public Student() { }
-        public Student(Data.Student student) : base(student)
+        public Student(Data.Models.Student student) : base(student)
         {
             this.SelectedSubject = student.SelectedSubject.Select(s => new SubjectShort(s));
         }

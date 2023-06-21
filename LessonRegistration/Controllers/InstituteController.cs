@@ -1,4 +1,5 @@
-﻿using LessonRegistration.Data;
+﻿using LessonRegistration.Data.Models;
+using LessonRegistration.Data.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -13,19 +14,17 @@ namespace LessonRegistration.Controllers
     [Route("api/Institute")]
     public class InstituteController : Controller
     {
-        private readonly AppDBContext appDBContext;
+        private readonly Institutes institutes;
 
-        public InstituteController(AppDBContext appDBContext)
+        public InstituteController(Institutes institutes)
         {
-            this.appDBContext = appDBContext;
+            this.institutes = institutes;
         }
 
         [HttpGet]
         public IEnumerable<DTO.Institute> GetAll()
         {
-            return appDBContext.Institutes
-                .Include(i => i.Departments)
-                .Select(i => new DTO.Institute(i));
+            return institutes.GetAll().Select(i => new DTO.Institute(i));
         }
 
         [HttpPost]
@@ -36,9 +35,7 @@ namespace LessonRegistration.Controllers
             {
                 return errorAction;
             }
-            var instituteDb = institute.ToModel();
-            appDBContext.Institutes.Add(instituteDb);
-            appDBContext.SaveChanges();
+            var instituteDb = institutes.Add(institute.ToModel());
 
             return Ok(new DTO.Institute(instituteDb));
         }
@@ -46,9 +43,7 @@ namespace LessonRegistration.Controllers
         [HttpDelete("{id}")]
         public IActionResult Remove([FromRoute] int id)
         {
-            var removed = appDBContext.Institutes
-                .Include(i => i.Departments)
-                .FirstOrDefault(i => i.Id == id);
+            var removed = institutes.GetById(id);
             if (removed == null)
             {
                 return NotFound($"institute with id {id} not found");
@@ -57,8 +52,7 @@ namespace LessonRegistration.Controllers
             {
                 return BadRequest($"cascade delete prohibited. Remove all departments first");
             }
-            appDBContext.Institutes.Remove(removed);
-            appDBContext.SaveChanges();
+            institutes.Remove(removed);
 
             return Ok(new DTO.Institute(removed));
         }
@@ -66,7 +60,7 @@ namespace LessonRegistration.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById([FromRoute] int id)
         {
-            var institute = appDBContext.Institutes.Include(i => i.Departments).FirstOrDefault(i => i.Id == id);
+            var institute = institutes.GetById(id);
             if (institute == null)
             {
                 return NotFound($"institute with id {id} not found");
@@ -78,9 +72,7 @@ namespace LessonRegistration.Controllers
         [HttpGet("search")]
         public IActionResult GetByName([FromQuery] string name)
         {
-            var institutes = appDBContext.Institutes
-                .Include(i => i.Departments)
-                .Where(i => i.Name == name);
+            var institutes = this.institutes.FindByName(name);
 
             return Ok(institutes.Select(i => new DTO.Institute(i)));
         }
@@ -94,19 +86,13 @@ namespace LessonRegistration.Controllers
                 return errorAction;
             }
 
-            var oldInstitute = appDBContext.Institutes
-                .Include(i => i.Departments)
-                .FirstOrDefault(i => i.Id == institute.Id);
+            var oldInstitute = institutes.GetById(institute.Id);
             if (oldInstitute == null)
             {
-                return NotFound("can't update non-existent institute");
+                return NotFound($"can't update non-existent institute with id {institute.Id}");
             }
 
-            var newInstitute = institute.ToModel();
-            appDBContext.Entry(oldInstitute).State = EntityState.Detached;
-            appDBContext.Institutes.Update(newInstitute);
-            
-            appDBContext.SaveChanges();
+            var newInstitute = institutes.Update(institute.ToModel());
 
             return Ok(new DTO.Institute(newInstitute));
         }

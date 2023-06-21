@@ -1,4 +1,4 @@
-﻿using LessonRegistration.Data;
+﻿using LessonRegistration.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LessonRegistration.Controllers

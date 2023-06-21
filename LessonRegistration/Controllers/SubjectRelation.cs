@@ -1,4 +1,4 @@
-﻿using LessonRegistration.Data;
+﻿using LessonRegistration.Data.Models;
 using LessonRegistration.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +36,7 @@ namespace LessonRegistration.Controllers
                 return NotFound($"semester with id {id} not found");
             }
 
-            subject.UsedInSemesters = new HashSet<Data.Semester>();
+            subject.UsedInSemesters = new HashSet<Data.Models.Semester>();
             foreach (var semester in semesters)
             {
                 var dbSemester = appDBContext.Semesters
